@@ -1,0 +1,3 @@
+CRM.$(function($) {
+alert('awd');
+});

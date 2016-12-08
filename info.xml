@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<extension key="biz.jmaconsulting.cmsuser" type="module">
+  <file>cmsuser</file>
+  <name>Link CMS User</name>
+  <description>Displays a link from the Contact Summary page within CiviCRM to the CMS user's page.</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Edsel</author>
+    <email>edsel.lopez@jmaconsulting.biz</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">http://FIXME</url>
+    <url desc="Documentation">http://FIXME</url>
+    <url desc="Support">http://FIXME</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <releaseDate>2016-12-08</releaseDate>
+  <version>1.0</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>4.6</ver>
+  </compatibility>
+  <comments>This is a new, undeveloped module</comments>
+  <civix>
+    <namespace>CRM/Cmsuser</namespace>
+  </civix>
+</extension>
