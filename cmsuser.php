@@ -28,6 +28,7 @@ function cmsuser_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function cmsuser_civicrm_install() {
+  checkCMS();
   _cmsuser_civix_civicrm_install();
 }
 
@@ -105,6 +106,16 @@ function cmsuser_civicrm_caseTypes(&$caseTypes) {
  */
 function cmsuser_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _cmsuser_civix_civicrm_alterSettingsFolders($metaDataFolders);
+}
+
+/**
+ * Function to ensure extension is used only in Drupal.
+ *
+ */
+function checkCMS() {
+  if (CRM_Core_Config::singleton()->userFramework != "Drupal") {
+    CRM_Core_Error::fatal(ts("This extension currently only supports Drupal CMS."));
+  }
 }
 
 /**

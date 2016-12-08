@@ -12,8 +12,12 @@ function populateUserForm(cid) {
     "id": cid
   }).done(function(result) {
     $.each(result.values, function(key, element) {
-      $('#edit-name').val(element.first_name + '.' + element.last_name);
-      $('#edit-mail').val(element.email);
+      if ($('#edit-name').val() == "") {
+        $('#edit-name').val(element.first_name + '.' + element.last_name);
+      }
+      if ($('#edit-mail').val() == "") {
+        $('#edit-mail').val(element.email);
+      }
     });
   });
 }
