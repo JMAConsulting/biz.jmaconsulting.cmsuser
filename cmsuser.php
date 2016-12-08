@@ -107,25 +107,77 @@ function cmsuser_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   _cmsuser_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+/**
+ * Implementation of hook_civicrm_pageRun
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pageRun
+ */
 function cmsuser_civicrm_pageRun(&$page) {
   if ($page->getVar('_name') == "CRM_Contact_Page_View_Summary") {
-    if (CRM_Core_Config::singleton()->userFramework == "Drupal") {
-      $cid = CRM_Core_Session::singleton()->get('view.id');
-      $uid = CRM_Core_BAO_UFMatch::getUFId($cid);
-      if ($uid) {
-        $userRecordUrl = CRM_Core_Config::singleton()->userSystem->getUserRecordUrl($cid);
-        $user = user_load($uid);
-        $username = $user->name;
-        $page->assign('cmsUser', $username);
-      }
-      else {
-        $userRecordUrl = CRM_Utils_System::url("admin/people/create", array('contact_id' => $cid));
-        $page->assign('cmsUser', "Create User");
-      }
-      $page->assign('cmsURL', $userRecordUrl);
-      CRM_Core_Region::instance('page-body')->add(array(
-        'template' => 'CMSUser.tpl',
-      ));
+    $cms = CRM_Core_Config::singleton()->userFramework;
+    switch ($cms) {
+      case "Drupal":
+        $cid = CRM_Core_Session::singleton()->get('view.id');
+        $uid = CRM_Core_BAO_UFMatch::getUFId($cid);
+        if ($uid) {
+          $userRecordUrl = CRM_Core_Config::singleton()->userSystem->getUserRecordUrl($cid);
+          $user = user_load($uid);
+          $username = $user->name;
+          $page->assign('cmsUser', $username);
+        }
+        else {
+          $userRecordUrl = CRM_Utils_System::url("admin/people/create", array('crmId' => $cid));
+          $page->assign('cmsUser', "Create User");
+        }
+        $page->assign('cmsURL', $userRecordUrl);
+        CRM_Core_Region::instance('page-body')->add(array(
+          'template' => 'CMSUser.tpl',
+        ));
+        break;
+      case "WordPress":
+        // FIXME
+      case "Joomla":
+        // FIXME
+        break;
+    default:
+      break;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_civicrm_buildForm
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
+ */
+function cmsuser_civicrm_buildForm($formName, &$form) {
+  if ($formName == "CRM_Profile_Form_Dynamic" && ($cid = CRM_Utils_Request::retrieve('crmId', 'Integer'))) {
+    $cms = CRM_Core_Config::singleton()->userFramework;
+    switch ($cms) {
+      case "Drupal":
+        $result = civicrm_api3('Contact', 'get', array(
+          'sequential' => 1,
+          'return' => "first_name,last_name,email",
+          'id' => $cid,
+        ));
+        if ($result['count'] > 0) {
+          $defaults = array(
+            'first_name' => $result['values'][0]['first_name'],
+            'last_name' => $result['values'][0]['last_name'],
+          );
+          $form->setDefaults($defaults);
+        }
+
+        $url = CRM_Core_Config::singleton()->extensionsURL . DIRECTORY_SEPARATOR . basename(__DIR__) . "/templates/res/js/cms.js";
+        drupal_add_js($url, 'external');
+        break;
+      case "WordPress":
+        // FIXME
+      case "Joomla":
+        // FIXME
+        break;
+    default:
+      break;
     }
   }
 }
