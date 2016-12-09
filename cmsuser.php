@@ -192,3 +192,33 @@ function cmsuser_civicrm_buildForm($formName, &$form) {
     }
   }
 }
+
+/**
+ * Implementation of hook_civicrm_pre
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_pre
+ */
+function cmsuser_civicrm_pre($op, $objectName, $id, &$params) {
+  if ($op == "create" && $objectName == "Profile" && ($cid = CRM_Utils_Request::retrieve('crmId', 'Integer')) && CRM_Utils_Array::value('email-Primary', $params)) {
+    $cms = CRM_Core_Config::singleton()->userFramework;
+    switch ($cms) {
+      case "Drupal":
+        $result = civicrm_api3('Email', 'get', array(
+          'sequential' => 1,
+          'email' => $params['email-Primary'],
+        ));
+        if (!$result['count']) {
+          // Set contact ID so that new contact is not created by CiviCRM.
+          $params['contact_id'] = $cid;
+        }
+        break;
+      case "WordPress":
+        // FIXME
+      case "Joomla":
+        // FIXME
+        break;
+    default:
+      break;
+    }
+  }
+}
