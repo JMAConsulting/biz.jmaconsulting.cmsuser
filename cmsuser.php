@@ -113,8 +113,8 @@ function cmsuser_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  *
  */
 function checkCMS() {
-  if (CRM_Core_Config::singleton()->userFramework != "Drupal") {
-    CRM_Core_Error::fatal(ts("This extension currently only supports Drupal CMS."));
+  if (CRM_Core_Config::singleton()->userFramework == "Joomla") {
+    CRM_Core_Error::fatal(ts("This extension currently does not support Joomla CMS."));
   }
 }
 
@@ -170,7 +170,23 @@ function cmsuser_civicrm_pageRun(&$page) {
         ));
         break;
       case "WordPress":
-        // FIXME
+        $cid = CRM_Core_Session::singleton()->get('view.id');
+        $uid = CRM_Core_BAO_UFMatch::getUFId($cid);
+        if ($uid) {
+          $userRecordUrl = CRM_Core_Config::singleton()->userSystem->getUserRecordUrl($cid);
+          $user = get_userdata($uid);
+          $username = $user->data->display_name;
+          $page->assign('cmsUser', $username);
+        }
+        else {
+          $userRecordUrl = CRM_Utils_System::url("civicrm/contact/view/useradd", array('cid' => $cid, 'reset' => 1, 'action' => 'add'));
+          $page->assign('cmsUser', "Create User");
+        }
+        $page->assign('cmsURL', $userRecordUrl);
+        CRM_Core_Region::instance('page-body')->add(array(
+          'template' => 'CMSUser.tpl',
+        ));
+        break;
       case "Joomla":
         // FIXME
         break;
