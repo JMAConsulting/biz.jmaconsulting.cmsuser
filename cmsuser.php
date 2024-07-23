@@ -74,12 +74,17 @@ function cmsuser_civicrm_pageRun(&$page) {
     $cms = CRM_Core_Config::singleton()->userFramework;
     switch ($cms) {
       case "Drupal":
+      case 'Drupal8':
         $cid = CRM_Core_Session::singleton()->get('view.id');
         $uid = CRM_Core_BAO_UFMatch::getUFId($cid);
         if ($uid) {
           $userRecordUrl = CRM_Core_Config::singleton()->userSystem->getUserRecordUrl($cid);
-          $user = user_load($uid);
-          $username = $user->name;
+          if ($cms == 'Drupal8') {
+            $username = \Drupal\user\Entity\User::load($uid)->getAccountName();
+          }
+          else {
+            $username = user_load($uid)->name;
+          }
           $page->assign('cmsUser', $username);
         }
         else {
@@ -128,6 +133,7 @@ function cmsuser_civicrm_buildForm($formName, &$form) {
     $cms = CRM_Core_Config::singleton()->userFramework;
     switch ($cms) {
       case "Drupal":
+      case "Drupal8":
         $result = civicrm_api3('Contact', 'get', array(
           'sequential' => 1,
           'return' => "first_name,last_name,email",
